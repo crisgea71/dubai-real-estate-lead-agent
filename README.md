@@ -64,3 +64,72 @@ Create a virtual environment:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create a `.env` file:
+
+```bash
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+Run the app locally:
+
+```bash
+python3 app.py
+```
+
+Open in browser:
+
+```bash
+http://127.0.0.1:5001
+```
+
+## Environment Variables
+
+This project requires:
+
+```bash
+GROQ_API_KEY
+```
+
+The real `.env` file is ignored by Git and should never be uploaded to GitHub.
+
+## Render Deployment
+
+Recommended Render settings:
+
+```bash
+Build Command: pip install -r requirements.txt
+Start Command: gunicorn app:app
+```
+
+Add this environment variable in Render:
+
+```bash
+GROQ_API_KEY=your_real_groq_api_key
+```
+
+## Demo Access
+
+This project is built as a demo AI lead qualification agent.
+
+A trial limit and password access can be added for controlled demos.
+
+
+
+## Status
+
+Current version:
+
+- Working local Flask app
+- Groq API connected
+- Lead qualification flow working
+- Lead summary generation working
+- GitHub repository created
+- Render deployment ready
