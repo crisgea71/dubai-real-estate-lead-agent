@@ -1,24 +1,27 @@
-cat > README.md << 'EOF'
 # Dubai Real Estate AI Lead Qualification Agent
 
 An AI-powered lead qualification agent for real estate agencies in Dubai and the Middle East.
 
-The agent helps qualify potential property clients before a human real estate agent calls them.
+This agent helps qualify potential property clients before a human real estate agent calls them.
 
-## What it does
+## What the agent does
 
-The AI agent asks the lead:
+The AI assistant asks the lead a series of qualification questions:
 
-- Buy or rent
-- Budget
-- Preferred area
-- Property type
-- Timeline
-- Cash or mortgage
-- Viewing interest
-- Name and contact details
+- Are they looking to buy or rent?
+- What is their budget?
+- Which area are they interested in?
+- What property type are they looking for?
+- When do they want to move or buy?
+- Are they a cash buyer or do they need a mortgage?
+- Do they want to schedule a viewing?
+- What is their name and contact information?
 
-At the end, it generates a structured lead summary:
+At the end, the agent generates a structured lead summary.
+
+## Lead Summary Output
+
+The final summary includes:
 
 - Client name
 - Buy/Rent
@@ -27,10 +30,21 @@ At the end, it generates a structured lead summary:
 - Property type
 - Timeline
 - Mortgage/Cash
-- Viewing
-- Contact
+- Viewing interest
+- Contact details
 - Lead score: Hot / Warm / Cold
-- Suggested next action
+- Suggested next action for the real estate agent
+
+## Use Case
+
+This demo is designed for real estate agencies that want to save time by qualifying leads before a human agent follows up.
+
+It can help agencies:
+
+- reduce time spent on unqualified leads
+- identify serious buyers or renters faster
+- prepare structured lead information for agents
+- improve response speed for website visitors
 
 ## Tech Stack
 
@@ -38,8 +52,10 @@ At the end, it generates a structured lead summary:
 - Flask
 - Groq API
 - Llama 3.3 70B
-- HTML/CSS/JavaScript
-- Render-ready deployment
+- HTML
+- CSS
+- JavaScript
+- Render deployment
 
 ## Local Setup
 
