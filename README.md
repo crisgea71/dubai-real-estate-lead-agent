@@ -133,3 +133,19 @@ Current version:
 - Lead summary generation working
 - GitHub repository created
 - Render deployment ready
+- ## Future Improvements
+
+This is the first demo version of the AI lead qualification agent.
+
+Possible next upgrades:
+
+- Send the lead summary to a human real estate agent via WhatsApp Business API
+- Save qualified leads into Google Sheets
+- Connect the agent to a CRM such as HubSpot, Zoho, Pipedrive, or Salesforce
+- Connect to live property listings or an internal property database
+- Add booking flow for property viewings
+- Add a dashboard where agents and managers can see all leads
+- Assign leads automatically to different agents
+- Add follow-up reminders for warm and cold leads
+
+The current version focuses on the core workflow: website visitor conversation, lead qualification, lead scoring, and structured lead summary generation.
