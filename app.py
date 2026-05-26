@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 from dotenv import load_dotenv
 from groq import Groq
 
@@ -7,10 +7,17 @@ load_dotenv()
 
 app = Flask(__name__)
 
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key-change-on-render")
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+DEMO_PASSWORD = os.getenv("DEMO_PASSWORD")
+FREE_MESSAGE_LIMIT = 14
 
 if not GROQ_API_KEY:
     print("WARNING: GROQ_API_KEY is missing. Add it to your .env file.")
+
+if not DEMO_PASSWORD:
+    print("WARNING: DEMO_PASSWORD is missing. Add it to your .env file.")
 
 client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
@@ -80,6 +87,24 @@ def home():
     return render_template("index.html")
 
 
+@app.route("/unlock", methods=["POST"])
+def unlock():
+    data = request.get_json()
+    password = data.get("password", "")
+
+    if password == DEMO_PASSWORD:
+        session["unlocked"] = True
+        return jsonify({
+            "success": True,
+            "message": "Access unlocked. You can continue using the demo."
+        })
+
+    return jsonify({
+        "success": False,
+        "message": "Incorrect password."
+    }), 401
+
+
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
@@ -87,6 +112,17 @@ def chat():
             return jsonify({
                 "reply": "Server error: GROQ_API_KEY is missing."
             }), 500
+
+        unlocked = session.get("unlocked", False)
+        message_count = session.get("message_count", 0)
+
+        if not unlocked and message_count >= FREE_MESSAGE_LIMIT:
+            return jsonify({
+                "locked": True,
+                "reply": "Demo limit reached. Please contact Cristina for full access."
+            }), 403
+
+        session["message_count"] = message_count + 1
 
         data = request.get_json()
         messages = data.get("messages", [])
@@ -109,7 +145,11 @@ def chat():
 
         reply = response.choices[0].message.content
 
-        return jsonify({"reply": reply})
+        return jsonify({
+            "reply": reply,
+            "remaining_free_messages": max(0, FREE_MESSAGE_LIMIT - session["message_count"]),
+            "unlocked": unlocked
+        })
 
     except Exception as e:
         return jsonify({

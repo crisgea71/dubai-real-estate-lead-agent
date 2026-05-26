@@ -97,6 +97,14 @@
       border-top: 1px solid #1f2937;
     }
 
+    .unlock-area {
+      display: none;
+      gap: 10px;
+      padding: 16px;
+      background: #111827;
+      border-top: 1px solid #1f2937;
+    }
+
     input {
       flex: 1;
       padding: 13px;
@@ -117,8 +125,13 @@
       cursor: pointer;
     }
 
+    button:hover {
+      background: #1d4ed8;
+    }
+
     button:disabled {
       background: #475569;
+      cursor: not-allowed;
     }
 
     .demo-note {
@@ -134,12 +147,17 @@
         align-items: flex-start;
       }
 
-      .input-area {
+      .input-area,
+      .unlock-area {
         flex-direction: column;
       }
 
       .message {
         max-width: 92%;
+      }
+
+      button {
+        width: 100%;
       }
     }
   </style>
@@ -158,13 +176,18 @@
 
     <div id="chatBox" class="chat-box"></div>
 
+    <div id="unlockArea" class="unlock-area">
+      <input id="passwordInput" type="text" placeholder="Enter access password..." />
+      <button onclick="unlockAccess()">Unlock Access</button>
+    </div>
+
     <div class="input-area">
       <input id="userInput" type="text" placeholder="Type your answer..." />
       <button id="sendButton" onclick="sendMessage()">Send</button>
     </div>
 
     <div class="demo-note">
-      Demo for real estate agencies in Dubai / Middle East. No data is stored.
+      Demo for real estate agencies in Dubai / Middle East. Free demo access is limited.
     </div>
   </div>
 
@@ -172,6 +195,8 @@
     const chatBox = document.getElementById("chatBox");
     const userInput = document.getElementById("userInput");
     const sendButton = document.getElementById("sendButton");
+    const unlockArea = document.getElementById("unlockArea");
+    const passwordInput = document.getElementById("passwordInput");
 
     const firstMessage = {
       role: "assistant",
@@ -196,6 +221,10 @@
     function resetChat() {
       messages = [firstMessage];
       userInput.value = "";
+      passwordInput.value = "";
+      unlockArea.style.display = "none";
+      sendButton.disabled = false;
+      userInput.disabled = false;
       renderMessages();
     }
 
@@ -226,26 +255,88 @@
 
         const data = await response.json();
 
-        messages.push({
-          role: "assistant",
-          content: data.reply || "Something went wrong."
-        });
+        if (data.locked) {
+          messages.push({
+            role: "assistant",
+            content: data.reply
+          });
+
+          unlockArea.style.display = "flex";
+          userInput.disabled = true;
+          sendButton.disabled = true;
+        } else {
+          messages.push({
+            role: "assistant",
+            content: data.reply || "Something went wrong."
+          });
+
+          sendButton.disabled = false;
+          userInput.disabled = false;
+        }
 
       } catch (error) {
         messages.push({
           role: "assistant",
           content: "Network error. Please check your server."
         });
+
+        sendButton.disabled = false;
+        userInput.disabled = false;
       }
 
-      sendButton.disabled = false;
       sendButton.textContent = "Send";
       renderMessages();
     }
 
+    async function unlockAccess() {
+      const password = passwordInput.value.trim();
+
+      if (!password) return;
+
+      try {
+        const response = await fetch("/unlock", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ password: password })
+        });
+
+        const data = await response.json();
+
+        messages.push({
+          role: "assistant",
+          content: data.message
+        });
+
+        if (data.success) {
+          unlockArea.style.display = "none";
+          userInput.disabled = false;
+          sendButton.disabled = false;
+          passwordInput.value = "";
+        }
+
+        renderMessages();
+
+      } catch (error) {
+        messages.push({
+          role: "assistant",
+          content: "Unlock failed. Please try again."
+        });
+
+        renderMessages();
+      }
+    }
+
     userInput.addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !sendButton.disabled) {
         sendMessage();
+      }
+    });
+
+    passwordInput.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        unlockAccess();
       }
     });
 
